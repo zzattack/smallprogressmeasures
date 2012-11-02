@@ -38,6 +38,12 @@ namespace SmallProgresMeasures {
 			}
 			return true; // if matched up to here, then equal
 		}
+		public bool EqualTo(DTuple other) {
+			for (int i = 0; i < Count; i++) {
+				if (this[i] != other[i]) return false;
+			}
+			return true; // if matched up to here, then equal
+		}
 		public bool SmallerThenUpto(DTuple other, int p) {
 			return !GreaterOrEqualUpto(other, p);
 		}
@@ -57,7 +63,7 @@ namespace SmallProgresMeasures {
 			return a.SmallerOrEqualUpto(b, a.Count);
 		}
 		public static bool operator ==(DTuple a, DTuple b) {
-			return a >= b && a <= b; // i'm lazy and this works
+			return a.EqualTo(b); // liever lui dan moe
 		}
 		public static bool operator !=(DTuple a, DTuple b) {
 			return !(a == b);

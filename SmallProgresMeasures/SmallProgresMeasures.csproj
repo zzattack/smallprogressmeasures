@@ -6,7 +6,7 @@
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{A0D56139-76A4-4512-83A0-D529AE46FBFE}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SmallProgresMeasures</RootNamespace>
     <AssemblyName>SmallProgresMeasures</AssemblyName>
@@ -33,24 +33,23 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Deployment" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Graph\TopologicalSort.cs" />
     <Compile Include="ParityGame\DTuple.cs" />
     <Compile Include="ParityGame\Edge.cs" />
     <Compile Include="Jurdzinsky.cs" />
-    <Compile Include="LiftingStrategies.cs" />
+    <Compile Include="Strategies\SimpleStrategies.cs" />
     <Compile Include="ParityGame\ParityGame.cs" />
+    <Compile Include="Graph\Tarjan.cs" />
+    <Compile Include="Graph\TarjanIterative.cs" />
     <Compile Include="PGSolver\Parser.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -63,6 +62,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ParityGame\Vertex.cs" />
+    <Compile Include="Strategies\LiftingStrategy.cs" />
     <Compile Include="StrategySet.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

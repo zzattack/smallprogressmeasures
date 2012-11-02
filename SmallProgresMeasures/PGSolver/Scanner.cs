@@ -5,282 +5,261 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 
-namespace PGSolver
-{
-    #region Scanner
+namespace PGSolver {
+	#region Scanner
 
-    public partial class Scanner
-    {
-        public string Input;
-        public int StartPos = 0;
-        public int EndPos = 0;
-        public int CurrentLine;
-        public int CurrentColumn;
-        public int CurrentPosition;
-        public List<Token> Skipped; // tokens that were skipped
-        public Dictionary<TokenType, Regex> Patterns;
+	public partial class Scanner {
+		public string Input;
+		public int StartPos = 0;
+		public int EndPos = 0;
+		public int CurrentLine;
+		public int CurrentColumn;
+		public int CurrentPosition;
+		public List<Token> Skipped; // tokens that were skipped
+		public Dictionary<TokenType, Regex> Patterns;
 
-        private Token LookAheadToken;
-        private List<TokenType> Tokens;
-        private List<TokenType> SkipList; // tokens to be skipped
+		private Token LookAheadToken;
+		private List<TokenType> Tokens;
+		private List<TokenType> SkipList; // tokens to be skipped
 
-        public Scanner()
-        {
-            Regex regex;
-            Patterns = new Dictionary<TokenType, Regex>();
-            Tokens = new List<TokenType>();
-            LookAheadToken = null;
-            Skipped = new List<Token>();
+		public Scanner() {
+			Regex regex;
+			Patterns = new Dictionary<TokenType, Regex>();
+			Tokens = new List<TokenType>();
+			LookAheadToken = null;
+			Skipped = new List<Token>();
 
-            SkipList = new List<TokenType>();
-            SkipList.Add(TokenType.WHITESPACE);
+			SkipList = new List<TokenType>();
+			SkipList.Add(TokenType.WHITESPACE);
 
-            regex = new Regex(@"[\s\t\r\n]+", RegexOptions.Compiled);
-            Patterns.Add(TokenType.WHITESPACE, regex);
-            Tokens.Add(TokenType.WHITESPACE);
+			regex = new Regex(@"[\s\t\r\n]+", RegexOptions.Compiled);
+			Patterns.Add(TokenType.WHITESPACE, regex);
+			Tokens.Add(TokenType.WHITESPACE);
 
-            regex = new Regex(@"[0-9]+", RegexOptions.Compiled);
-            Patterns.Add(TokenType.NUMBER, regex);
-            Tokens.Add(TokenType.NUMBER);
+			regex = new Regex(@"[0-9]+", RegexOptions.Compiled);
+			Patterns.Add(TokenType.NUMBER, regex);
+			Tokens.Add(TokenType.NUMBER);
 
-            regex = new Regex(@"[a-zA-Z0-9_']+", RegexOptions.Compiled);
-            Patterns.Add(TokenType.IDENTIFIER, regex);
-            Tokens.Add(TokenType.IDENTIFIER);
+			regex = new Regex(@"[a-zA-Z0-9_']+", RegexOptions.Compiled);
+			Patterns.Add(TokenType.IDENTIFIER, regex);
+			Tokens.Add(TokenType.IDENTIFIER);
 
-            regex = new Regex(@"^$", RegexOptions.Compiled);
-            Patterns.Add(TokenType.EOF, regex);
-            Tokens.Add(TokenType.EOF);
+			regex = new Regex(@"^$", RegexOptions.Compiled);
+			Patterns.Add(TokenType.EOF, regex);
+			Tokens.Add(TokenType.EOF);
 
-            regex = new Regex(@"parity", RegexOptions.Compiled);
-            Patterns.Add(TokenType.PARITY, regex);
-            Tokens.Add(TokenType.PARITY);
+			regex = new Regex(@"parity", RegexOptions.Compiled);
+			Patterns.Add(TokenType.PARITY, regex);
+			Tokens.Add(TokenType.PARITY);
 
-            regex = new Regex(@"[01]", RegexOptions.Compiled);
-            Patterns.Add(TokenType.OWNERSTR, regex);
-            Tokens.Add(TokenType.OWNERSTR);
+			regex = new Regex(@"[01]", RegexOptions.Compiled);
+			Patterns.Add(TokenType.OWNERSTR, regex);
+			Tokens.Add(TokenType.OWNERSTR);
 
-            regex = new Regex(@",", RegexOptions.Compiled);
-            Patterns.Add(TokenType.COMMA, regex);
-            Tokens.Add(TokenType.COMMA);
+			regex = new Regex(@",", RegexOptions.Compiled);
+			Patterns.Add(TokenType.COMMA, regex);
+			Tokens.Add(TokenType.COMMA);
 
-            regex = new Regex(";", RegexOptions.Compiled);
-            Patterns.Add(TokenType.SEMICOLON, regex);
-            Tokens.Add(TokenType.SEMICOLON);
+			regex = new Regex(";", RegexOptions.Compiled);
+			Patterns.Add(TokenType.SEMICOLON, regex);
+			Tokens.Add(TokenType.SEMICOLON);
 
-            regex = new Regex(@"""[^""]*""", RegexOptions.Compiled);
-            Patterns.Add(TokenType.STRING, regex);
-            Tokens.Add(TokenType.STRING);
+			regex = new Regex(@"""[^""]*""", RegexOptions.Compiled);
+			Patterns.Add(TokenType.STRING, regex);
+			Tokens.Add(TokenType.STRING);
 
 
-        }
+		}
 
-        public void Init(string input)
-        {
-            this.Input = input;
-            StartPos = 0;
-            EndPos = 0;
-            CurrentLine = 0;
-            CurrentColumn = 0;
-            CurrentPosition = 0;
-            LookAheadToken = null;
-        }
+		public void Init(string input) {
+			this.Input = input;
+			StartPos = 0;
+			EndPos = 0;
+			CurrentLine = 0;
+			CurrentColumn = 0;
+			CurrentPosition = 0;
+			LookAheadToken = null;
+		}
 
-        public Token GetToken(TokenType type)
-        {
-            Token t = new Token(this.StartPos, this.EndPos);
-            t.Type = type;
-            return t;
-        }
+		public Token GetToken(TokenType type) {
+			Token t = new Token(this.StartPos, this.EndPos);
+			t.Type = type;
+			return t;
+		}
 
-         /// <summary>
-        /// executes a lookahead of the next token
-        /// and will advance the scan on the input string
-        /// </summary>
-        /// <returns></returns>
-        public Token Scan(params TokenType[] expectedtokens)
-        {
-            Token tok = LookAhead(expectedtokens); // temporarely retrieve the lookahead
-            LookAheadToken = null; // reset lookahead token, so scanning will continue
-            StartPos = tok.EndPos;
-            EndPos = tok.EndPos; // set the tokenizer to the new scan position
-            return tok;
-        }
+		/// <summary>
+		/// executes a lookahead of the next token
+		/// and will advance the scan on the input string
+		/// </summary>
+		/// <returns></returns>
+		public Token Scan(params TokenType[] expectedtokens) {
+			Token tok = LookAhead(expectedtokens); // temporarely retrieve the lookahead
+			LookAheadToken = null; // reset lookahead token, so scanning will continue
+			StartPos = tok.EndPos;
+			EndPos = tok.EndPos; // set the tokenizer to the new scan position
+			return tok;
+		}
 
-        /// <summary>
-        /// returns token with longest best match
-        /// </summary>
-        /// <returns></returns>
-        public Token LookAhead(params TokenType[] expectedtokens)
-        {
-            int i;
-            int startpos = StartPos;
-            Token tok = null;
-            List<TokenType> scantokens;
+		/// <summary>
+		/// returns token with longest best match
+		/// </summary>
+		/// <returns></returns>
+		public Token LookAhead(params TokenType[] expectedtokens) {
+			int i;
+			int startpos = StartPos;
+			Token tok = null;
+			List<TokenType> scantokens;
 
 
-            // this prevents double scanning and matching
-            // increased performance
-            if (LookAheadToken != null 
-                && LookAheadToken.Type != TokenType._UNDETERMINED_ 
-                && LookAheadToken.Type != TokenType._NONE_) return LookAheadToken;
+			// this prevents double scanning and matching
+			// increased performance
+			if (LookAheadToken != null
+				&& LookAheadToken.Type != TokenType._UNDETERMINED_
+				&& LookAheadToken.Type != TokenType._NONE_) return LookAheadToken;
 
-            // if no scantokens specified, then scan for all of them (= backward compatible)
-            if (expectedtokens.Length == 0)
-                scantokens = Tokens;
-            else
-            {
-                scantokens = new List<TokenType>(expectedtokens);
-                scantokens.AddRange(SkipList);
-            }
+			// if no scantokens specified, then scan for all of them (= backward compatible)
+			if (expectedtokens.Length == 0)
+				scantokens = Tokens;
+			else {
+				scantokens = new List<TokenType>(expectedtokens);
+				scantokens.AddRange(SkipList);
+			}
 
-            do
-            {
+			do {
 
-                int len = -1;
-                TokenType index = (TokenType)int.MaxValue;
-                string input = Input.Substring(startpos);
+				int len = -1;
+				TokenType index = (TokenType)int.MaxValue;
+				string input = Input.Substring(startpos);
 
-                tok = new Token(startpos, EndPos);
+				tok = new Token(startpos, EndPos);
 
-                for (i = 0; i < scantokens.Count; i++)
-                {
-                    Regex r = Patterns[scantokens[i]];
-                    Match m = r.Match(input);
-                    if (m.Success && m.Index == 0 && ((m.Length > len) || (scantokens[i] < index && m.Length == len )))
-                    {
-                        len = m.Length;
-                        index = scantokens[i];  
-                    }
-                }
+				for (i = 0; i < scantokens.Count; i++) {
+					Regex r = Patterns[scantokens[i]];
+					Match m = r.Match(input);
+					if (m.Success && m.Index == 0 && ((m.Length > len) || (scantokens[i] < index && m.Length == len))) {
+						len = m.Length;
+						index = scantokens[i];
+					}
+				}
 
-                if (index >= 0 && len >= 0)
-                {
-                    tok.EndPos = startpos + len;
-                    tok.Text = Input.Substring(tok.StartPos, len);
-                    tok.Type = index;
-                }
-                else if (tok.StartPos < tok.EndPos - 1)
-                {
-                    tok.Text = Input.Substring(tok.StartPos, 1);
-                }
+				if (index >= 0 && len >= 0) {
+					tok.EndPos = startpos + len;
+					tok.Text = Input.Substring(tok.StartPos, len);
+					tok.Type = index;
+				}
+				else if (tok.StartPos < tok.EndPos - 1) {
+					tok.Text = Input.Substring(tok.StartPos, 1);
+				}
 
-                if (SkipList.Contains(tok.Type))
-                {
-                    startpos = tok.EndPos;
-                    Skipped.Add(tok);
-                }
-                else
-                {
-                    // only assign to non-skipped tokens
-                    tok.Skipped = Skipped; // assign prior skips to this token
-                    Skipped = new List<Token>(); //reset skips
-                }
-            }
-            while (SkipList.Contains(tok.Type));
+				if (SkipList.Contains(tok.Type)) {
+					startpos = tok.EndPos;
+					Skipped.Add(tok);
+				}
+				else {
+					// only assign to non-skipped tokens
+					tok.Skipped = Skipped; // assign prior skips to this token
+					Skipped = new List<Token>(); //reset skips
+				}
+			}
+			while (SkipList.Contains(tok.Type));
 
-            LookAheadToken = tok;
-            return tok;
-        }
-    }
+			LookAheadToken = tok;
+			return tok;
+		}
+	}
 
-    #endregion
+	#endregion
 
-    #region Token
+	#region Token
 
-    public enum TokenType
-    {
+	public enum TokenType {
 
-            //Non terminal tokens:
-            _NONE_  = 0,
-            _UNDETERMINED_= 1,
+		//Non terminal tokens:
+		_NONE_ = 0,
+		_UNDETERMINED_ = 1,
 
-            //Non terminal tokens:
-            Start   = 2,
-            ParityGame= 3,
-            NodeSpec= 4,
-            Successors= 5,
+		//Non terminal tokens:
+		Start = 2,
+		ParityGame = 3,
+		NodeSpec = 4,
+		Successors = 5,
 
-            //Terminal tokens:
-            WHITESPACE= 6,
-            NUMBER  = 7,
-            IDENTIFIER= 8,
-            EOF     = 9,
-            PARITY  = 10,
-            OWNERSTR= 11,
-            COMMA   = 12,
-            SEMICOLON= 13,
-            STRING  = 14
-    }
+		//Terminal tokens:
+		WHITESPACE = 6,
+		NUMBER = 7,
+		IDENTIFIER = 8,
+		EOF = 9,
+		PARITY = 10,
+		OWNERSTR = 11,
+		COMMA = 12,
+		SEMICOLON = 13,
+		STRING = 14
+	}
 
-    public class Token
-    {
-        private int startpos;
-        private int endpos;
-        private string text;
-        private object value;
+	public class Token {
+		private int startpos;
+		private int endpos;
+		private string text;
+		private object value;
 
-        // contains all prior skipped symbols
-        private List<Token> skipped;
+		// contains all prior skipped symbols
+		private List<Token> skipped;
 
-        public int StartPos { 
-            get { return startpos;} 
-            set { startpos = value; }
-        }
+		public int StartPos {
+			get { return startpos; }
+			set { startpos = value; }
+		}
 
-        public int Length { 
-            get { return endpos - startpos;} 
-        }
+		public int Length {
+			get { return endpos - startpos; }
+		}
 
-        public int EndPos { 
-            get { return endpos;} 
-            set { endpos = value; }
-        }
+		public int EndPos {
+			get { return endpos; }
+			set { endpos = value; }
+		}
 
-        public string Text { 
-            get { return text;} 
-            set { text = value; }
-        }
+		public string Text {
+			get { return text; }
+			set { text = value; }
+		}
 
-        public List<Token> Skipped { 
-            get { return skipped;} 
-            set { skipped = value; }
-        }
-        public object Value { 
-            get { return value;} 
-            set { this.value = value; }
-        }
+		public List<Token> Skipped {
+			get { return skipped; }
+			set { skipped = value; }
+		}
+		public object Value {
+			get { return value; }
+			set { this.value = value; }
+		}
 
-        [XmlAttribute]
-        public TokenType Type;
+		[XmlAttribute]
+		public TokenType Type;
 
-        public Token()
-            : this(0, 0)
-        {
-        }
+		public Token()
+			: this(0, 0) {
+		}
 
-        public Token(int start, int end)
-        {
-            Type = TokenType._UNDETERMINED_;
-            startpos = start;
-            endpos = end;
-            Text = ""; // must initialize with empty string, may cause null reference exceptions otherwise
-            Value = null;
-        }
+		public Token(int start, int end) {
+			Type = TokenType._UNDETERMINED_;
+			startpos = start;
+			endpos = end;
+			Text = ""; // must initialize with empty string, may cause null reference exceptions otherwise
+			Value = null;
+		}
 
-        public void UpdateRange(Token token)
-        {
-            if (token.StartPos < startpos) startpos = token.StartPos;
-            if (token.EndPos > endpos) endpos = token.EndPos;
-        }
+		public void UpdateRange(Token token) {
+			if (token.StartPos < startpos) startpos = token.StartPos;
+			if (token.EndPos > endpos) endpos = token.EndPos;
+		}
 
-        public override string ToString()
-        {
-            if (Text != null)
-                return Type.ToString() + " '" + Text + "'";
-            else
-                return Type.ToString();
-        }
-    }
+		public override string ToString() {
+			if (Text != null)
+				return Type.ToString() + " '" + Text + "'";
+			else
+				return Type.ToString();
+		}
+	}
 
-    #endregion
+	#endregion
 }
