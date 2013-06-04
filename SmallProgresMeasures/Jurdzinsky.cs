@@ -57,9 +57,8 @@ namespace SmallProgresMeasures {
 		}
 
 		private void Lift(Vertex v, StrategySet rho) {
-			var ps = new List<DTuple>();
-			var succs = v.Adj.OrderBy(w => rho[w]);
-			rho[v] = Prog(rho, v, v.OwnerEven ? succs.First() : succs.Last());
+			var ps = v.Adj.Select(w => Prog(rho, v, w)).OrderBy(d => d);
+			rho[v] = v.OwnerEven ? ps.First() : ps.Last();
 		}
 
 		public DTuple Prog(StrategySet rho, Vertex v, Vertex w) {

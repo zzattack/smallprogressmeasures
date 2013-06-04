@@ -32,7 +32,7 @@ namespace SmallProgresMeasures {
 			};
 
 			var strats = new List<LiftingStrategy> {
-				/*SimpleStrategies.InputOrder,
+				SimpleStrategies.InputOrder,
 				SimpleStrategies.ReverseInputOrder,
 				new AlternatingStrategy(),
 				SimpleStrategies.RandomOrder,
@@ -41,7 +41,7 @@ namespace SmallProgresMeasures {
 				SimpleStrategies.MaxEdges,
 				SimpleStrategies.MinPriority,
 				SimpleStrategies.MaxPriority,
-				SimpleStrategies.Hybrid,*/
+				SimpleStrategies.Hybrid,
 				new SCCLiftingStrategy(),
 			};
 
@@ -49,8 +49,8 @@ namespace SmallProgresMeasures {
 			string[] games = { "elevator1", 
 							 "elevator2" };
 
-			var resultsArray = new int[1, games.Count()];
-			//var resultsArray = new int[6, strats.Count()];
+			//var resultsArray = new int[1, games.Count()];
+			var resultsArray = new int[6, strats.Count()];
 
 			for (int gameIdx = 0; gameIdx < games.Length; gameIdx++) {
 				string gameName = games[gameIdx];
@@ -71,11 +71,11 @@ namespace SmallProgresMeasures {
 						var evenWins = result.OrderBy(kvp => kvp.Key.Id).Where(kvp => kvp.Value);
 						string winningVertices = string.Join(",", evenWins.Select(v => v.Key.Name).Take(5));
 
-						//Log("{0} in {1}ms: {2} for initial state", stratNames[stratIdx].PadRight(15),
-						//    sw.ElapsedMilliseconds.ToString().PadLeft(7), result[pgame.V[0]]);
+						Log("{0} in {1}ms: {2} for initial state", stratNames[stratIdx].PadRight(15),
+						    sw.ElapsedMilliseconds.ToString().PadLeft(7), result[pgame.V[0]]);
 
-						resultsArray[gameSizeIdx, gameIdx] = (int) sw.ElapsedMilliseconds;
-						// resultsArray[gameSizeIdx, stratIdx] = (int) sw.ElapsedMilliseconds;
+						//resultsArray[gameSizeIdx, gameIdx] = (int) sw.ElapsedMilliseconds;
+						resultsArray[gameSizeIdx, stratIdx] = (int) sw.ElapsedMilliseconds;
 
 						logWriter.Flush();
 					}
@@ -83,7 +83,7 @@ namespace SmallProgresMeasures {
 					//Log("".PadLeft(20, '-'));
 				}
 
-				/*// Print per strategy
+				// Print per strategy
 				var sb = new StringBuilder();
 				sb.AppendLine("% table for " + gameName);
 				sb.AppendLine(@"\begin{table}");
@@ -96,9 +96,9 @@ namespace SmallProgresMeasures {
 					}
 					sb.AppendLine(@"\\");
 				}
-				sb.AppendLine(@"\end{table}");*/
-			}
-				// Print single strategy per game
+				sb.AppendLine(@"\end{table}");
+			
+				/*// Print single strategy per game
 					var sb = new StringBuilder();
 					sb.AppendLine("% table for " + "SCC");
 					sb.AppendLine(@"\begin{table}");
@@ -112,12 +112,12 @@ namespace SmallProgresMeasures {
 						sb.AppendLine(@"\\");
 					}
 					sb.AppendLine(@"\end{table}");
-					LogDirect(sb.ToString());
+					LogDirect(sb.ToString());*/
 
 				LogDirect(sb.ToString());
 
 				logWriter.Flush();
-			//}
+			}
 
 			Console.ReadKey();
 		}
